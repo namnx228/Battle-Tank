@@ -11,3 +11,8 @@
 *.lai
 *.la
 *.a
+
+.DS_Store
+proj.win32/Debug.win32/*
+proj.win32/Release.win32/*
+proj.ios/battletank.xcodeproj/project.xcworkspace/xcuserdata/
