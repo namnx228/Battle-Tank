@@ -74,7 +74,7 @@ bool HelloWorld::init()
         this->addChild(pLabel, 1);
 
         // 3. Add add a splash screen, show the cocos2d splash image.
-        CCSprite* pSprite = CCSprite::create("mapvip.png");
+        CCSprite* pSprite = CCSprite::create("HelloWorld.png");
         CC_BREAK_IF(! pSprite);
 
         // Place the sprite on the center of the screen
@@ -143,6 +143,7 @@ void HelloWorld::ccTouchesMoved(CCSet *pTouches, CCEvent *pEvent)
 
 	m_DirectionVector = ccpSub(smallcircle->getPosition(), bigcircle->getPosition());
 	m_DirectionVector = ccpNormalize(m_DirectionVector);
+
 	m_IsTouchMoved = true;
 
 }
@@ -162,6 +163,69 @@ void HelloWorld::update(float pDt)
 {
 	if (m_IsTouchMoved)
 	{
+		
+		CCPoint pos_big = bigcircle->getPosition();
+		CCPoint pos_small = smallcircle->getPosition();
+		
+		// phai tren
+		if((pos_small.x > pos_big.x)&&(pos_small.y > pos_big.y))
+		{
+			if (abs(m_DirectionVector.x) > abs(m_DirectionVector.y)) 
+			{
+				m_DirectionVector.y = 0;
+				goc=180;
+			}	
+			else 
+			{
+				m_DirectionVector.x = 0;
+				goc=90;
+			}
+		}
+		
+		
+		//trai tren
+		if((pos_small.x < pos_big.x)&&(pos_small.y > pos_big.y))
+		{
+			if (abs(m_DirectionVector.x) > abs(m_DirectionVector.y)) 
+			{
+				m_DirectionVector.y = 0;
+				goc=0;
+			}	
+			else 
+			{
+				m_DirectionVector.x = 0;
+				goc=90;
+			}
+		}
+		//trai duoi
+		if((pos_small.x < pos_big.x)&&(pos_small.y < pos_big.y))
+		{
+			if (abs(m_DirectionVector.x) > abs(m_DirectionVector.y)) 
+			{
+				m_DirectionVector.y = 0;
+				goc=0;
+			}	
+			else 
+			{
+				m_DirectionVector.x = 0;
+				goc=270;
+			}
+		}
+		//phai duoi
+		if((pos_small.x > pos_big.x)&&(pos_small.y < pos_big.y))
+		{
+			if (abs(m_DirectionVector.x) > abs(m_DirectionVector.y)) 
+			{
+				m_DirectionVector.y = 0;
+				goc=180;
+			}	
+			else 
+			{
+				m_DirectionVector.x = 0;
+				goc=270;
+			}
+		}
+		tank->setRotation(goc);	
 		CCPoint pos = tank->getPosition();
 		tank->setPosition(ccpAdd(pos, m_DirectionVector));
 	}

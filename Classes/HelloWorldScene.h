@@ -14,7 +14,7 @@ class HelloWorld : public cocos2d::CCLayer
 	CCSprite* bigcircle;
 	CCSprite* smallcircle;
 	CCSprite* tank;
-
+	float goc;
 	bool m_IsTouchMoved;
 
 	CCPoint m_DirectionVector;
