@@ -74,7 +74,7 @@ bool HelloWorld::init()
         this->addChild(pLabel, 1);
 
         // 3. Add add a splash screen, show the cocos2d splash image.
-        CCSprite* pSprite = CCSprite::create("HelloWorld.png");
+        CCSprite* pSprite = CCSprite::create("mapvip.png");
         CC_BREAK_IF(! pSprite);
 
         // Place the sprite on the center of the screen
@@ -82,11 +82,89 @@ bool HelloWorld::init()
 
         // Add the sprite to HelloWorld layer as a child layer.
         this->addChild(pSprite, 0);
+		
+		tank = CCSprite::create("dame3.png");
+		CC_BREAK_IF(! tank);
+		this->addChild(tank,10);
+		tank->setPosition(ccp(size.width/2,size.height/2));
 
+		smallcircle = CCSprite::create("nho.png");
+        CC_BREAK_IF(! smallcircle);
+		this->addChild(smallcircle,15);
+        smallcircle->setVisible(false);
+		///////////////////////////////////
+	    bigcircle = CCSprite::create("to.png");
+        CC_BREAK_IF(! bigcircle);
+		this->addChild(bigcircle,10);
+	    bigcircle->setVisible(false);	
+		scheduleUpdate();
+		setTouchEnabled(true);
         bRet = true;
     } while (0);
 
+	m_IsTouchMoved = false;
+
     return bRet;
+}
+
+
+void HelloWorld::ccTouchesBegan(CCSet *pTouches, CCEvent *pEvent)
+{
+	CCTouch *touch = (CCTouch *)pTouches->anyObject();
+	CCPoint pointTouched = touch->getLocationInView();
+	pointTouched = CCDirector::sharedDirector()->convertToGL(pointTouched);
+	smallcircle->setVisible(true);
+	bigcircle->setVisible(true);
+	smallcircle->setPosition(ccp(pointTouched.x, pointTouched.y));
+	bigcircle->setPosition(ccp(pointTouched.x, pointTouched.y));
+    
+	  
+}
+
+void HelloWorld::ccTouchesEnded(CCSet *pTouches, CCEvent *pEvent)
+{
+	CCTouch *touch = (CCTouch *)pTouches->anyObject();
+	CCPoint pointTouched = touch->getLocationInView();
+	pointTouched = CCDirector::sharedDirector()->convertToGL(pointTouched);
+
+	smallcircle->setVisible(false);
+	bigcircle->setVisible(false);
+
+	m_IsTouchMoved = false;
+}
+
+void HelloWorld::ccTouchesMoved(CCSet *pTouches, CCEvent *pEvent)
+{
+	CCTouch *touch = (CCTouch *)pTouches->anyObject();
+	CCPoint pointTouched = touch->getLocationInView();
+	pointTouched = CCDirector::sharedDirector()->convertToGL(pointTouched);
+
+	smallcircle->setPosition(pointTouched);
+
+	m_DirectionVector = ccpSub(smallcircle->getPosition(), bigcircle->getPosition());
+	m_DirectionVector = ccpNormalize(m_DirectionVector);
+	m_IsTouchMoved = true;
+
+}
+
+void HelloWorld::ccTouchesCancelled(CCSet *pTouches, CCEvent *pEvent)
+{
+	CCTouch *touch = (CCTouch *)pTouches->anyObject();
+	CCPoint pointTouched = touch->getLocationInView();
+	pointTouched = CCDirector::sharedDirector()->convertToGL(pointTouched);
+	smallcircle->setVisible(false);
+	bigcircle->setVisible(false);
+
+	m_IsTouchMoved = false;
+}
+
+void HelloWorld::update(float pDt)
+{
+	if (m_IsTouchMoved)
+	{
+		CCPoint pos = tank->getPosition();
+		tank->setPosition(ccpAdd(pos, m_DirectionVector));
+	}
 }
 
 void HelloWorld::menuCloseCallback(CCObject* pSender)
