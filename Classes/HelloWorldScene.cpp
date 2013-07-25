@@ -111,6 +111,7 @@ bool HelloWorld::init()
         CC_BREAK_IF(! smallcircle);
 		this->addChild(smallcircle,15);
         smallcircle->setVisible(false);
+
 		///////////////////////////////////
 	    bigcircle = CCSprite::create("to.png");
         CC_BREAK_IF(! bigcircle);
@@ -201,7 +202,6 @@ void HelloWorld::update(float pDt)
 			}
 		}
 		
-		
 		//trai tren
 		if((pos_small.x < pos_big.x)&&(pos_small.y >= pos_big.y))
 		{
@@ -216,6 +216,7 @@ void HelloWorld::update(float pDt)
 				goc=90;
 			}
 		}
+
 		//trai duoi
 		if((pos_small.x <= pos_big.x)&&(pos_small.y < pos_big.y))
 		{
@@ -230,6 +231,7 @@ void HelloWorld::update(float pDt)
 				goc=270;
 			}
 		}
+
 		//phai duoi
 		if((pos_small.x > pos_big.x)&&(pos_small.y <= pos_big.y))
 		{
@@ -244,6 +246,7 @@ void HelloWorld::update(float pDt)
 				goc=270;
 			}
 		}
+
 		////////////////////////////////
 		tank->setRotation(goc);	
 		CCPoint pos = tank->getPosition();
