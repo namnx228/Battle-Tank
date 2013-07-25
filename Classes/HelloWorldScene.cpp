@@ -74,7 +74,7 @@ bool HelloWorld::init()
         this->addChild(pLabel, 1);
 
         // 3. Add add a splash screen, show the cocos2d splash image.
-        CCSprite* pSprite = CCSprite::create("mapvip.png");
+        CCSprite* pSprite = CCSprite::create("HelloWorld.png");
         CC_BREAK_IF(! pSprite);
 
         // Place the sprite on the center of the screen
@@ -83,10 +83,29 @@ bool HelloWorld::init()
         // Add the sprite to HelloWorld layer as a child layer.
         this->addChild(pSprite, 0);
 		
+		//Add tank
 		tank = CCSprite::create("dame3.png");
 		CC_BREAK_IF(! tank);
-		this->addChild(tank,10);
+		this->addChild(tank,2);
 		tank->setPosition(ccp(size.width/2,size.height/2));
+
+		//Add brick wall
+		BrickWall = CCSprite::create("BrickWall.png");
+		CC_BREAK_IF(! BrickWall);
+		this->addChild(BrickWall,3);
+		BrickWall->setPosition(ccp(size.width/4,size.height/2));
+
+		//Add tree
+		Tree = CCSprite::create("Tree.png");
+		CC_BREAK_IF(! Tree);
+		this->addChild(Tree,3);
+		Tree->setPosition(ccp(size.width/2,size.height/4));
+
+		//Add water
+		Water = CCSprite::create("Water.png");
+		CC_BREAK_IF(! Water);
+		this->addChild(Water,3);
+		Water->setPosition(ccp(size.width/4*3,size.height/3*2));		
 
 		smallcircle = CCSprite::create("nho.png");
         CC_BREAK_IF(! smallcircle);
@@ -140,9 +159,10 @@ void HelloWorld::ccTouchesMoved(CCSet *pTouches, CCEvent *pEvent)
 	pointTouched = CCDirector::sharedDirector()->convertToGL(pointTouched);
 
 	smallcircle->setPosition(pointTouched);
-
+	
 	m_DirectionVector = ccpSub(smallcircle->getPosition(), bigcircle->getPosition());
 	m_DirectionVector = ccpNormalize(m_DirectionVector);
+
 	m_IsTouchMoved = true;
 
 }
@@ -162,8 +182,81 @@ void HelloWorld::update(float pDt)
 {
 	if (m_IsTouchMoved)
 	{
+		goc = 0;
+		CCPoint pos_big = bigcircle->getPosition();
+		CCPoint pos_small = smallcircle->getPosition();
+		
+		// phai tren
+		if((pos_small.x >= pos_big.x)&&(pos_small.y > pos_big.y))
+		{
+			if (abs(m_DirectionVector.x) > abs(m_DirectionVector.y)) 
+			{
+				m_DirectionVector.y = 0;
+				goc=180;
+			}	
+			else 
+			{
+				m_DirectionVector.x = 0;
+				goc=90;
+			}
+		}
+		
+		
+		//trai tren
+		if((pos_small.x < pos_big.x)&&(pos_small.y >= pos_big.y))
+		{
+			if (abs(m_DirectionVector.x) > abs(m_DirectionVector.y)) 
+			{
+				m_DirectionVector.y = 0;
+				goc=0;
+			}	
+			else 
+			{
+				m_DirectionVector.x = 0;
+				goc=90;
+			}
+		}
+		//trai duoi
+		if((pos_small.x <= pos_big.x)&&(pos_small.y < pos_big.y))
+		{
+			if (abs(m_DirectionVector.x) > abs(m_DirectionVector.y)) 
+			{
+				m_DirectionVector.y = 0;
+				goc=0;
+			}	
+			else 
+			{
+				m_DirectionVector.x = 0;
+				goc=270;
+			}
+		}
+		//phai duoi
+		if((pos_small.x > pos_big.x)&&(pos_small.y <= pos_big.y))
+		{
+			if (abs(m_DirectionVector.x) > abs(m_DirectionVector.y)) 
+			{
+				m_DirectionVector.y = 0;
+				goc=180;
+			}	
+			else 
+			{
+				m_DirectionVector.x = 0;
+				goc=270;
+			}
+		}
+		////////////////////////////////
+		tank->setRotation(goc);	
 		CCPoint pos = tank->getPosition();
-		tank->setPosition(ccpAdd(pos, m_DirectionVector));
+		CCSprite *tmp = CCSprite::create("dame3.png");
+		this->addChild(tmp, 5);
+		tmp->setRotation(goc);	
+		tmp->setVisible(false);
+		tmp->setPosition(ccpAdd(pos, m_DirectionVector));
+		if (! tmp->boundingBox().intersectsRect(BrickWall->boundingBox()) 
+			&& ! tmp->boundingBox().intersectsRect(Water->boundingBox()))
+		{
+			tank->setPosition(ccpAdd(pos, m_DirectionVector));
+		}
 	}
 }
 
