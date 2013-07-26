@@ -63,11 +63,11 @@ bool HelloWorld::init()
         // 2. Add a label shows "Hello World".
 
         // Create a label and initialize with string "Hello World".
-        CCLabelTTF* pLabel = CCLabelTTF::create("Hello World", "Arial", 24);
+        CCLabelTTF* pLabel = CCLabelTTF::create("Battle Tank", "Arial", 24);
         CC_BREAK_IF(! pLabel);
 
         // Get window size and place the label upper. 
-        CCSize size = CCDirector::sharedDirector()->getWinSize();
+        size = CCDirector::sharedDirector()->getWinSize();
         pLabel->setPosition(ccp(size.width / 2, size.height - 50));
 
         // Add the label to HelloWorld layer as a child layer.
@@ -121,7 +121,7 @@ bool HelloWorld::init()
 		setTouchEnabled(true);
         bRet = true;
     } while (0);
-
+	moveSize = size.width/4;
 	m_IsTouchMoved = false;
 
     return bRet;
@@ -133,11 +133,14 @@ void HelloWorld::ccTouchesBegan(CCSet *pTouches, CCEvent *pEvent)
 	CCTouch *touch = (CCTouch *)pTouches->anyObject();
 	CCPoint pointTouched = touch->getLocationInView();
 	pointTouched = CCDirector::sharedDirector()->convertToGL(pointTouched);
-	smallcircle->setVisible(true);
-	bigcircle->setVisible(true);
-	smallcircle->setPosition(ccp(pointTouched.x, pointTouched.y));
-	bigcircle->setPosition(ccp(pointTouched.x, pointTouched.y));
-    
+
+	if (pointTouched.x <= moveSize)
+	{
+		smallcircle->setVisible(true);
+		bigcircle->setVisible(true);
+		smallcircle->setPosition(ccp(pointTouched.x, pointTouched.y));
+		bigcircle->setPosition(ccp(pointTouched.x, pointTouched.y));
+	}
 	  
 }
 
@@ -147,9 +150,11 @@ void HelloWorld::ccTouchesEnded(CCSet *pTouches, CCEvent *pEvent)
 	CCPoint pointTouched = touch->getLocationInView();
 	pointTouched = CCDirector::sharedDirector()->convertToGL(pointTouched);
 
-	smallcircle->setVisible(false);
-	bigcircle->setVisible(false);
-
+	if (pointTouched.x <= moveSize)
+	{
+		smallcircle->setVisible(false);
+		bigcircle->setVisible(false);
+	}
 	m_IsTouchMoved = false;
 }
 
@@ -158,14 +163,20 @@ void HelloWorld::ccTouchesMoved(CCSet *pTouches, CCEvent *pEvent)
 	CCTouch *touch = (CCTouch *)pTouches->anyObject();
 	CCPoint pointTouched = touch->getLocationInView();
 	pointTouched = CCDirector::sharedDirector()->convertToGL(pointTouched);
-
-	smallcircle->setPosition(pointTouched);
-	
-	m_DirectionVector = ccpSub(smallcircle->getPosition(), bigcircle->getPosition());
-	m_DirectionVector = ccpNormalize(m_DirectionVector);
-
-	m_IsTouchMoved = true;
-
+	if (pointTouched.x <= moveSize)
+	{
+		smallcircle->setVisible(true);
+		bigcircle->setVisible(true);
+		smallcircle->setPosition(pointTouched);
+		m_IsTouchMoved = true;
+	}
+	else 
+	{
+		smallcircle->setVisible(false);
+		bigcircle->setVisible(false);
+		m_IsTouchMoved = false;
+	}
+		
 }
 
 void HelloWorld::ccTouchesCancelled(CCSet *pTouches, CCEvent *pEvent)
@@ -173,9 +184,11 @@ void HelloWorld::ccTouchesCancelled(CCSet *pTouches, CCEvent *pEvent)
 	CCTouch *touch = (CCTouch *)pTouches->anyObject();
 	CCPoint pointTouched = touch->getLocationInView();
 	pointTouched = CCDirector::sharedDirector()->convertToGL(pointTouched);
-	smallcircle->setVisible(false);
-	bigcircle->setVisible(false);
-
+	if (pointTouched.x <= moveSize) 
+	{
+		smallcircle->setVisible(false);
+		bigcircle->setVisible(false);
+	}
 	m_IsTouchMoved = false;
 }
 
@@ -184,72 +197,90 @@ void HelloWorld::update(float pDt)
 	if (m_IsTouchMoved)
 	{
 		goc = 0;
+		CCPoint pos = tank->getPosition();
 		CCPoint pos_big = bigcircle->getPosition();
 		CCPoint pos_small = smallcircle->getPosition();
-		
+		float tankSize = tank->getContentSize().width;
+		m_DirectionVector = ccpSub(smallcircle->getPosition(), bigcircle->getPosition());
+		m_DirectionVector = ccpNormalize(m_DirectionVector);		
 		// phai tren
 		if((pos_small.x >= pos_big.x)&&(pos_small.y > pos_big.y))
 		{
-			if (abs(m_DirectionVector.x) > abs(m_DirectionVector.y)) 
+			if (abs(m_DirectionVector.x) >= abs(m_DirectionVector.y)) 
 			{
 				m_DirectionVector.y = 0;
 				goc=180;
+				if (pos.x + tankSize/2 + m_DirectionVector.x  > size.width)
+					m_DirectionVector.x = 0;
 			}	
 			else 
 			{
 				m_DirectionVector.x = 0;
 				goc=90;
+				if (pos.y + tankSize/2 + m_DirectionVector.y > size.height)
+					m_DirectionVector.y = 0;
 			}
 		}
 		
 		//trai tren
 		if((pos_small.x < pos_big.x)&&(pos_small.y >= pos_big.y))
 		{
-			if (abs(m_DirectionVector.x) > abs(m_DirectionVector.y)) 
+			if (abs(m_DirectionVector.x) >= abs(m_DirectionVector.y)) 
 			{
 				m_DirectionVector.y = 0;
 				goc=0;
+				if (pos.x - tankSize/2 - m_DirectionVector.x < 0)
+					m_DirectionVector.x = 0;
 			}	
 			else 
 			{
 				m_DirectionVector.x = 0;
 				goc=90;
+				if (pos.y + tankSize/2 + m_DirectionVector.y > size.height)
+					m_DirectionVector.y = 0;
 			}
 		}
 
 		//trai duoi
 		if((pos_small.x <= pos_big.x)&&(pos_small.y < pos_big.y))
 		{
-			if (abs(m_DirectionVector.x) > abs(m_DirectionVector.y)) 
+			if (abs(m_DirectionVector.x) >= abs(m_DirectionVector.y)) 
 			{
 				m_DirectionVector.y = 0;
 				goc=0;
+				if (pos.x - tankSize/2 - m_DirectionVector.x < 0)
+					m_DirectionVector.x = 0;
 			}	
 			else 
 			{
 				m_DirectionVector.x = 0;
 				goc=270;
+				if (pos.y - tankSize/2 - m_DirectionVector.y < 0)
+					m_DirectionVector.y = 0;
 			}
 		}
 
 		//phai duoi
 		if((pos_small.x > pos_big.x)&&(pos_small.y <= pos_big.y))
 		{
-			if (abs(m_DirectionVector.x) > abs(m_DirectionVector.y)) 
+			if (abs(m_DirectionVector.x) >= abs(m_DirectionVector.y)) 
 			{
 				m_DirectionVector.y = 0;
 				goc=180;
+				if (pos.x + tankSize/2 + m_DirectionVector.x  > size.width)
+					m_DirectionVector.x = 0;
 			}	
 			else 
 			{
 				m_DirectionVector.x = 0;
 				goc=270;
+				if (pos.y - tankSize/2 - m_DirectionVector.y < 0)
+					m_DirectionVector.y = 0;
 			}
 		}
 
 		////////////////////////////////
 		tank->setRotation(goc);	
-		CCPoint pos = tank->getPosition();
 		CCSprite *tmp = CCSprite::create("dame3.png");
 		this->addChild(tmp, 5);
 		tmp->setRotation(goc);	

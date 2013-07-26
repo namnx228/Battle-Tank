@@ -17,9 +17,10 @@ class HelloWorld : public cocos2d::CCLayer
 	CCSprite* BrickWall;
 	CCSprite* Water;
 	CCSprite* Tree;
-	float goc;
+	float goc, moveSize;
 	bool m_IsTouchMoved;
 	CCPoint m_DirectionVector;
+	CCSize size;
 public:
 	
 
