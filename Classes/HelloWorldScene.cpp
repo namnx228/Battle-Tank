@@ -174,6 +174,7 @@ void HelloWorld::ccTouchesMoved(CCSet *pTouches, CCEvent *pEvent)
 		bigcircle->setVisible(true);
 		smallcircle->setPosition(pointTouched);
 		m_IsTouchMoved = true;
+		IsHolding = false;
 	}
 	else 
 	{
