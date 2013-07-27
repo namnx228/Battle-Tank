@@ -11,8 +11,11 @@
 *.lai
 *.la
 *.a
+<<<<<<< HEAD
 
 .DS_Store
 proj.win32/Debug.win32/*
 proj.win32/Release.win32/*
 proj.ios/battletank.xcodeproj/project.xcworkspace/xcuserdata/
+=======
+>>>>>>> c0980e5720c5dc29c9cdbd0c9747d4aa9265acda
