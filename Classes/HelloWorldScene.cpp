@@ -74,7 +74,7 @@ bool HelloWorld::init()
         this->addChild(pLabel, 1);
 
         // 3. Add add a splash screen, show the cocos2d splash image.
-        CCSprite* pSprite = CCSprite::create("HelloWorld.png");
+        CCSprite* pSprite = CCSprite::create("map.png");
         CC_BREAK_IF(! pSprite);
 
         // Place the sprite on the center of the screen
@@ -123,7 +123,8 @@ bool HelloWorld::init()
     } while (0);
 	moveSize = size.width/4;
 	m_IsTouchMoved = false;
-
+	IsHolding = false;
+	goc = 0;
     return bRet;
 }
 
@@ -141,6 +142,8 @@ void HelloWorld::ccTouchesBegan(CCSet *pTouches, CCEvent *pEvent)
 		smallcircle->setPosition(ccp(pointTouched.x, pointTouched.y));
 		bigcircle->setPosition(ccp(pointTouched.x, pointTouched.y));
 	}
+	else
+		IsHolding = true;
 	  
 }
 
@@ -155,6 +158,8 @@ void HelloWorld::ccTouchesEnded(CCSet *pTouches, CCEvent *pEvent)
 		smallcircle->setVisible(false);
 		bigcircle->setVisible(false);
 	}
+	else
+		IsHolding = false;
 	m_IsTouchMoved = false;
 }
 
@@ -196,7 +201,6 @@ void HelloWorld::update(float pDt)
 {
 	if (m_IsTouchMoved)
 	{
-		goc = 0;
 		CCPoint pos = tank->getPosition();
 		CCPoint pos_big = bigcircle->getPosition();
 		CCPoint pos_small = smallcircle->getPosition();
@@ -292,6 +296,20 @@ void HelloWorld::update(float pDt)
 			tank->setPosition(ccpAdd(pos, m_DirectionVector));
 		}
 	}
+
+	if (IsHolding)
+	{
+		CCSprite* dame = CCSprite::create("dame.png");
+		this->addChild(dame,9);
+		float angle = tank->getRotation();
+		CCPoint pos = tank->getPosition();
+		dame->setPosition(pos);
+		stack.push_back(dame);
+		if ( angle == 0) dame->runAction(CCSequence::create(CCMoveBy::create(2, ccp(-150, 0)), CCCallFuncN::create(dame, callfuncN_selector(HelloWorld::removeObject)), NULL));
+		if ( angle == 90) dame->runAction(CCSequence::create(CCMoveBy::create(2, ccp(0, 150)), CCCallFuncN::create(dame, callfuncN_selector(HelloWorld::removeObject)), NULL));
+		if ( angle == 180) dame->runAction(CCSequence::create(CCMoveBy::create(2, ccp(150, 0)), CCCallFuncN::create(dame, callfuncN_selector(HelloWorld::removeObject)), NULL));
+		if ( angle == 270) dame->runAction(CCSequence::create(CCMoveBy::create(2, ccp(0, -150)), CCCallFuncN::create(dame, callfuncN_selector(HelloWorld::removeObject)), NULL));	
+	}
 }
 
 void HelloWorld::menuCloseCallback(CCObject* pSender)
@@ -300,3 +318,7 @@ void HelloWorld::menuCloseCallback(CCObject* pSender)
     CCDirector::sharedDirector()->end();
 }
 
+void HelloWorld::removeObject( CCNode* sender ) 
+{ 
+	sender->removeFromParentAndCleanup(true); 
+}

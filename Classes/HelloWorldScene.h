@@ -2,12 +2,12 @@
 #define __HELLOWORLD_SCENE_H__
 
 #include "cocos2d.h"
-
+#include <vector>
 #include "SimpleAudioEngine.h"
 
 
 using namespace cocos2d;
-
+using namespace std;
 
 class HelloWorld : public cocos2d::CCLayer
 {
@@ -21,6 +21,9 @@ class HelloWorld : public cocos2d::CCLayer
 	bool m_IsTouchMoved;
 	CCPoint m_DirectionVector;
 	CCSize size;
+	bool IsHolding;
+	vector<CCSprite*> stack;
+
 public:
 	
 
@@ -32,6 +35,8 @@ public:
     
     // a selector callback
     void menuCloseCallback(CCObject* pSender);
+
+	void removeObject( CCNode* sender);
 
     // implement the "static node()" method manually
     CREATE_FUNC(HelloWorld);
