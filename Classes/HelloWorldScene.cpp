@@ -84,10 +84,11 @@ bool HelloWorld::init()
         this->addChild(pSprite, 0);
 		
 		//Add tank
-		tank = CCSprite::create("dame3.png");
-		CC_BREAK_IF(! tank);
-		this->addChild(tank,2);
-		tank->setPosition(ccp(size.width/2,size.height/2));
+		Player_1.appearance = CCSprite::create("dame3.png");
+		CC_BREAK_IF(! Player_1.appearance);
+		this->addChild(Player_1.appearance,2);
+		Player_1.appearance->setPosition(ccp(size.width/2,size.height/2));
+		Player_1.time = 0;
 
 		//Add brick wall
 		BrickWall = CCSprite::create("BrickWall.png");
@@ -202,10 +203,10 @@ void HelloWorld::update(float pDt)
 {
 	if (m_IsTouchMoved)
 	{
-		CCPoint pos = tank->getPosition();
+		CCPoint pos = Player_1.appearance->getPosition();
 		CCPoint pos_big = bigcircle->getPosition();
 		CCPoint pos_small = smallcircle->getPosition();
-		float tankSize = tank->getContentSize().width;
+		float tankSize = Player_1.appearance->getContentSize().width;
 		m_DirectionVector = ccpSub(smallcircle->getPosition(), bigcircle->getPosition());
 		m_DirectionVector = ccpNormalize(m_DirectionVector);		
 		// phai tren
@@ -285,7 +286,7 @@ void HelloWorld::update(float pDt)
 		}
 
 		////////////////////////////////
-		tank->setRotation(goc);	
+		Player_1.appearance->setRotation(goc);	
 		CCSprite *tmp = CCSprite::create("dame3.png");
 		this->addChild(tmp, 5);
 		tmp->setRotation(goc);	
@@ -294,22 +295,26 @@ void HelloWorld::update(float pDt)
 		if (! tmp->boundingBox().intersectsRect(BrickWall->boundingBox()) 
 			&& ! tmp->boundingBox().intersectsRect(Water->boundingBox()))
 		{
-			tank->setPosition(ccpAdd(pos, m_DirectionVector));
+			Player_1.appearance->setPosition(ccpAdd(pos, m_DirectionVector));
 		}
 	}
-
+	if (Player_1.time >0) Player_1.time -=1;
 	if (IsHolding)
 	{
+		if (Player_1.time == 0) 
+		{
 		CCSprite* dame = CCSprite::create("dame.png");
 		this->addChild(dame,9);
-		float angle = tank->getRotation();
-		CCPoint pos = tank->getPosition();
+		float angle = Player_1.appearance->getRotation();
+		CCPoint pos = Player_1.appearance->getPosition();
 		dame->setPosition(pos);
 		stack.push_back(dame);
 		if ( angle == 0) dame->runAction(CCSequence::create(CCMoveBy::create(2, ccp(-150, 0)), CCCallFuncN::create(dame, callfuncN_selector(HelloWorld::removeObject)), NULL));
 		if ( angle == 90) dame->runAction(CCSequence::create(CCMoveBy::create(2, ccp(0, 150)), CCCallFuncN::create(dame, callfuncN_selector(HelloWorld::removeObject)), NULL));
 		if ( angle == 180) dame->runAction(CCSequence::create(CCMoveBy::create(2, ccp(150, 0)), CCCallFuncN::create(dame, callfuncN_selector(HelloWorld::removeObject)), NULL));
-		if ( angle == 270) dame->runAction(CCSequence::create(CCMoveBy::create(2, ccp(0, -150)), CCCallFuncN::create(dame, callfuncN_selector(HelloWorld::removeObject)), NULL));	
+		if ( angle == 270) dame->runAction(CCSequence::create(CCMoveBy::create(2, ccp(0, -150)), CCCallFuncN::create(dame, callfuncN_selector(HelloWorld::removeObject)), NULL));		
+		Player_1.time = 50;
+		}
 	}
 }
 
@@ -321,5 +326,5 @@ void HelloWorld::menuCloseCallback(CCObject* pSender)
 
 void HelloWorld::removeObject( CCNode* sender ) 
 { 
-	sender->removeFromParentAndCleanup(true); 
+	sender->removeFromParentAndCleanup(true);
 }

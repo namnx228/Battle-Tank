@@ -9,11 +9,18 @@
 using namespace cocos2d;
 using namespace std;
 
+class Tank
+{
+public:
+	CCSprite *appearance;
+	long time;
+};
+
 class HelloWorld : public cocos2d::CCLayer
 {
 	CCSprite* bigcircle;
 	CCSprite* smallcircle;
-	CCSprite* tank;
+	Tank Player_1;
 	CCSprite* BrickWall;
 	CCSprite* Water;
 	CCSprite* Tree;
