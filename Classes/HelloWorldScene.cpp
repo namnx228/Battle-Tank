@@ -35,7 +35,7 @@ bool HelloWorld::init()
     _background = _tileMap->layerNamed("background");
 	_tree = _tileMap->layerNamed("tree");
 	_tileMap->removeAllChildren();
-	this->addChild(_background, 0);
+	this->addChild(_background, -5);
 	this->addChild(_tree, 5);
 //	_background->removeTileAt( ccp(3.0, 3.0) );
 
@@ -261,6 +261,7 @@ void HelloWorld::update(float pDt)
 		dame.appearance->setPosition(pos);
 		dame.appearance->setTag(bulletcount++);
 		stack.push_back(dame);
+
 		if ( dame.direction == 0) dame.appearance->runAction(CCSequence::create(CCMoveBy::create(2, ccp(-300, 0)), CCCallFuncN::create(this, callfuncN_selector(HelloWorld::removeObject)), NULL));
 		if ( dame.direction == 90) dame.appearance->runAction(CCSequence::create(CCMoveBy::create(2, ccp(0, 300)), CCCallFuncN::create(this, callfuncN_selector(HelloWorld::removeObject)), NULL));
 		if ( dame.direction == 180) dame.appearance->runAction(CCSequence::create(CCMoveBy::create(2, ccp(300, 0)), CCCallFuncN::create(this, callfuncN_selector(HelloWorld::removeObject)), NULL));
@@ -279,15 +280,15 @@ void HelloWorld::update(float pDt)
 				CCString *type = getType(pos, _background);
 				if (type->compare("Water") == 0 || type->compare("Brick") == 0 || type->compare("Wall") == 0)
 				{
-				if (type->compare("Brick") == 0) 
-					{
-						_background->removeTileAt( tileCoord );
-						stack[i].appearance->runAction( CCCallFuncN::create(this, callfuncN_selector(HelloWorld::removeObject)));
-					}
-				if (type->compare("Wall") == 0) 
-					{
-						stack[i].appearance->runAction( CCCallFuncN::create(this, callfuncN_selector(HelloWorld::removeObject)));
-					}
+					if (type->compare("Brick") == 0) 
+						{
+							_background->removeTileAt( tileCoord );
+							stack[i].appearance->runAction( CCCallFuncN::create(this, callfuncN_selector(HelloWorld::removeObject)));
+						}
+					if (type->compare("Wall") == 0) 
+						{
+							stack[i].appearance->runAction( CCCallFuncN::create(this, callfuncN_selector(HelloWorld::removeObject)));
+						}
 				}
 			}	
 		if (!win && stack[i].appearance->boundingBox().intersectsRect(enemyCitadel.appearance->boundingBox()))

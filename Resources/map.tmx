@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="30" height="20" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="map-objects" tilewidth="32" tileheight="32">
+  <image source="map-objects.png" width="64" height="64"/>
+  <tile id="0">
+   <properties>
+    <property name="Type" value="Tree"/>
+   </properties>
+  </tile>
+  <tile id="1">
+   <properties>
+    <property name="Type" value="Water"/>
+   </properties>
+  </tile>
+  <tile id="2">
+   <properties>
+    <property name="Type" value="Wall"/>
+   </properties>
+  </tile>
+  <tile id="3">
+   <properties>
+    <property name="Type" value="Brick"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="background" width="30" height="20">
+  <data encoding="base64" compression="zlib">
+   eJztk8EKwDAIQ8vW///mnXYJmiXWHgoLCAVrnoiO4Wsm793q5M7ADyPLOTUr3K/eO7hV/dxzuTdEJ5dJ4a74v7rMqApv0OUqdx/NCutwrm6e8aI9wL8qN/Jw9jnrMfPp4DI/lav4M66z/8xjlcv2xuUyMW+VW9EO7gO0KwLt
+  </data>
+ </layer>
+ <layer name="tree" width="30" height="20">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFowAVMKLh4Wovun30sn+g7SVWfKjbOwqoB6gdV8Sah08dtjxDKB8NF3uJLTdG89jAAgAbtwBF
+  </data>
+ </layer>
+</map>
