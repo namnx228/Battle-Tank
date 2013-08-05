@@ -1,134 +1,81 @@
 #include "HelloWorldScene.h"
-
+ 
 using namespace cocos2d;
 
+int bulletcount = 0;
+ 
 CCScene* HelloWorld::scene()
 {
-    CCScene * scene = NULL;
-    do 
-    {
-        // 'scene' is an autorelease object
-        scene = CCScene::create();
-        CC_BREAK_IF(! scene);
-
-        // 'layer' is an autorelease object
-        HelloWorld *layer = HelloWorld::create();
-        CC_BREAK_IF(! layer);
-
-        // add layer as a child to scene
-        scene->addChild(layer);
-    } while (0);
-
+    // 'scene' is an autorelease object
+    CCScene *scene = CCScene::create();
+ 
+    // 'layer' is an autorelease object
+    HelloWorld *layer = HelloWorld::create();
+ 
+    // add layer as a child to scene
+    scene->addChild(layer);
+ 
     // return the scene
     return scene;
 }
-
+ 
 // on "init" you need to initialize your instance
 bool HelloWorld::init()
 {
-    bool bRet = false;
-    do 
+    if ( !CCLayer::init() )
     {
-        //////////////////////////////////////////////////////////////////////////
-        // super init first
-        //////////////////////////////////////////////////////////////////////////
-
-        CC_BREAK_IF(! CCLayer::init());
-
-        //////////////////////////////////////////////////////////////////////////
-        // add your codes below...
-        //////////////////////////////////////////////////////////////////////////
-
-        // 1. Add a menu item with "X" image, which is clicked to quit the program.
-
-        // Create a "close" menu item with close icon, it's an auto release object.
-        CCMenuItemImage *pCloseItem = CCMenuItemImage::create(
-            "CloseNormal.png",
-            "CloseSelected.png",
-            this,
-            menu_selector(HelloWorld::menuCloseCallback));
-        CC_BREAK_IF(! pCloseItem);
-
-        // Place the menu item bottom-right conner.
-        pCloseItem->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width - 20, 20));
-
-        // Create a menu with the "close" menu item, it's an auto release object.
-        CCMenu* pMenu = CCMenu::create(pCloseItem, NULL);
-        pMenu->setPosition(CCPointZero);
-        CC_BREAK_IF(! pMenu);
-
-        // Add the menu to HelloWorld layer as a child layer.
-        this->addChild(pMenu, 1);
-
-        // 2. Add a label shows "Hello World".
-
-        // Create a label and initialize with string "Hello World".
-        CCLabelTTF* pLabel = CCLabelTTF::create("Battle Tank", "Arial", 24);
-        CC_BREAK_IF(! pLabel);
-
-        // Get window size and place the label upper. 
-        size = CCDirector::sharedDirector()->getWinSize();
-        pLabel->setPosition(ccp(size.width / 2, size.height - 50));
-
-        // Add the label to HelloWorld layer as a child layer.
-        this->addChild(pLabel, 1);
-
-        // 3. Add add a splash screen, show the cocos2d splash image.
-        CCSprite* pSprite = CCSprite::create("map.png");
-        CC_BREAK_IF(! pSprite);
-
-        // Place the sprite on the center of the screen
-        pSprite->setPosition(ccp(size.width/2, size.height/2));
-
-        // Add the sprite to HelloWorld layer as a child layer.
-        this->addChild(pSprite, 0);
-		
-		//Add tank
-		Player_1.appearance = CCSprite::create("dame3.png");
-		CC_BREAK_IF(! Player_1.appearance);
-		this->addChild(Player_1.appearance,2);
-		Player_1.appearance->setPosition(ccp(size.width/2,size.height/2));
-		Player_1.time = 0;
-
-		//Add brick wall
-		BrickWall = CCSprite::create("BrickWall.png");
-		CC_BREAK_IF(! BrickWall);
-		this->addChild(BrickWall,3);
-		BrickWall->setPosition(ccp(size.width/4,size.height/2));
-
-		//Add tree
-		Tree = CCSprite::create("Tree.png");
-		CC_BREAK_IF(! Tree);
-		this->addChild(Tree,3);
-		Tree->setPosition(ccp(size.width/2,size.height/4));
-
-		//Add water
-		Water = CCSprite::create("Water.png");
-		CC_BREAK_IF(! Water);
-		this->addChild(Water,3);
-		Water->setPosition(ccp(size.width/4*3,size.height/3*2));		
-
-		smallcircle = CCSprite::create("nho.png");
-        CC_BREAK_IF(! smallcircle);
-		this->addChild(smallcircle,15);
-        smallcircle->setVisible(false);
-
-		///////////////////////////////////
-	    bigcircle = CCSprite::create("to.png");
-        CC_BREAK_IF(! bigcircle);
-		this->addChild(bigcircle,10);
-	    bigcircle->setVisible(false);	
-		scheduleUpdate();
-		setTouchEnabled(true);
-        bRet = true;
-    } while (0);
+        return false;
+    }
+	size = CCDirector::sharedDirector()->getWinSize();
 	moveSize = size.width/4;
+
+	//Add tiled map
+    _tileMap = new CCTMXTiledMap();
+    _tileMap->initWithTMXFile("map.tmx");
+    _background = _tileMap->layerNamed("background");
+	_tree = _tileMap->layerNamed("tree");
+	_tileMap->removeAllChildren();
+	this->addChild(_background, 0);
+	this->addChild(_tree, 5);
+//	_background->removeTileAt( ccp(3.0, 3.0) );
+
+	//Add tank
+	Player_1.appearance = CCSprite::create("dame3.png");
+	this->addChild(Player_1.appearance,1);
+	Player_1.appearance->setPosition(ccp(size.width/4,Player_1.appearance->getContentSize().height/2));
+	Player_1.time = 0; 
+	tankSize = Player_1.appearance->getContentSize().width;
+
+	//Add Citadel
+	ourCitadel.appearance = CCSprite::create("thanh.png");
+	this->addChild(ourCitadel.appearance,1);
+	ourCitadel.appearance->setPosition(ccp(size.width/2,ourCitadel.appearance->getContentSize().height/2));
+	ourCitadel.hp = 50; 
+
+	enemyCitadel.appearance = CCSprite::create("thanh.png");
+	this->addChild(enemyCitadel.appearance,1);
+	enemyCitadel.appearance->setPosition(ccp(size.width/2,size.height - enemyCitadel.appearance->getContentSize().height/2));
+	enemyCitadel.hp = 50; 
+	
+
+
+	//Add virtual control
+	smallcircle = CCSprite::create("nho.png");
+	this->addChild(smallcircle,15);
+    smallcircle->setVisible(false);
+
+	bigcircle = CCSprite::create("to.png");
+	this->addChild(bigcircle,10);
+	bigcircle->setVisible(false);	
+
 	m_IsTouchMoved = false;
 	IsHolding = false;
 	goc = 0;
-    return bRet;
+	win = false;
+	setTouchEnabled(true);
+	scheduleUpdate();
+	return true;
 }
-
 
 void HelloWorld::ccTouchesBegan(CCSet *pTouches, CCEvent *pEvent)
 {
@@ -145,7 +92,7 @@ void HelloWorld::ccTouchesBegan(CCSet *pTouches, CCEvent *pEvent)
 	}
 	else
 		IsHolding = true;
-	  
+
 }
 
 void HelloWorld::ccTouchesEnded(CCSet *pTouches, CCEvent *pEvent)
@@ -169,6 +116,7 @@ void HelloWorld::ccTouchesMoved(CCSet *pTouches, CCEvent *pEvent)
 	CCTouch *touch = (CCTouch *)pTouches->anyObject();
 	CCPoint pointTouched = touch->getLocationInView();
 	pointTouched = CCDirector::sharedDirector()->convertToGL(pointTouched);
+
 	if (pointTouched.x <= moveSize)
 	{
 		smallcircle->setVisible(true);
@@ -183,7 +131,7 @@ void HelloWorld::ccTouchesMoved(CCSet *pTouches, CCEvent *pEvent)
 		bigcircle->setVisible(false);
 		m_IsTouchMoved = false;
 	}
-		
+
 }
 
 void HelloWorld::ccTouchesCancelled(CCSet *pTouches, CCEvent *pEvent)
@@ -206,9 +154,9 @@ void HelloWorld::update(float pDt)
 		CCPoint pos = Player_1.appearance->getPosition();
 		CCPoint pos_big = bigcircle->getPosition();
 		CCPoint pos_small = smallcircle->getPosition();
-		float tankSize = Player_1.appearance->getContentSize().width;
 		m_DirectionVector = ccpSub(smallcircle->getPosition(), bigcircle->getPosition());
 		m_DirectionVector = ccpNormalize(m_DirectionVector);		
+
 		// phai tren
 		if((pos_small.x >= pos_big.x)&&(pos_small.y > pos_big.y))
 		{
@@ -227,7 +175,7 @@ void HelloWorld::update(float pDt)
 					m_DirectionVector.y = 0;
 			}
 		}
-		
+
 		//trai tren
 		if((pos_small.x < pos_big.x)&&(pos_small.y >= pos_big.y))
 		{
@@ -284,38 +232,121 @@ void HelloWorld::update(float pDt)
 					m_DirectionVector.y = 0;
 			}
 		}
+		CCPoint nextPos = ccpAdd(pos, m_DirectionVector);
+		CCPoint checkPoint;
+		CCPoint checkPoint_1 = ccpAdd(nextPos, ccp(-tankSize/2, tankSize/2));
+		CCPoint checkPoint_2 = ccpAdd(nextPos, ccp(tankSize/2, tankSize/2));
+		CCPoint checkPoint_3 = ccpAdd(nextPos, ccp(tankSize/2, -tankSize/2));
+		CCPoint checkPoint_4 = ccpAdd(nextPos, ccp(-tankSize/2, -tankSize/2));
 
-		////////////////////////////////
 		Player_1.appearance->setRotation(goc);	
-		CCSprite *tmp = CCSprite::create("dame3.png");
-		this->addChild(tmp, 5);
-		tmp->setRotation(goc);	
-		tmp->setVisible(false);
-		tmp->setPosition(ccpAdd(pos, m_DirectionVector));
-		if (! tmp->boundingBox().intersectsRect(BrickWall->boundingBox()) 
-			&& ! tmp->boundingBox().intersectsRect(Water->boundingBox()))
+		if (check(checkPoint_1) && check(checkPoint_2)  && check(checkPoint_3) && check(checkPoint_4))
 		{
-			Player_1.appearance->setPosition(ccpAdd(pos, m_DirectionVector));
+			Player_1.appearance->setPosition(nextPos);
 		}
+		
+		
 	}
+
 	if (Player_1.time >0) Player_1.time -=1;
 	if (IsHolding)
 	{
 		if (Player_1.time == 0) 
 		{
-		CCSprite* dame = CCSprite::create("dame.png");
-		this->addChild(dame,9);
-		float angle = Player_1.appearance->getRotation();
+		Bullet dame;
+		dame.appearance = CCSprite::create("dame.png");
+		this->addChild(dame.appearance,4);
+		dame.direction = Player_1.appearance->getRotation();
 		CCPoint pos = Player_1.appearance->getPosition();
-		dame->setPosition(pos);
+		dame.appearance->setPosition(pos);
+		dame.appearance->setTag(bulletcount++);
 		stack.push_back(dame);
-		if ( angle == 0) dame->runAction(CCSequence::create(CCMoveBy::create(2, ccp(-150, 0)), CCCallFuncN::create(dame, callfuncN_selector(HelloWorld::removeObject)), NULL));
-		if ( angle == 90) dame->runAction(CCSequence::create(CCMoveBy::create(2, ccp(0, 150)), CCCallFuncN::create(dame, callfuncN_selector(HelloWorld::removeObject)), NULL));
-		if ( angle == 180) dame->runAction(CCSequence::create(CCMoveBy::create(2, ccp(150, 0)), CCCallFuncN::create(dame, callfuncN_selector(HelloWorld::removeObject)), NULL));
-		if ( angle == 270) dame->runAction(CCSequence::create(CCMoveBy::create(2, ccp(0, -150)), CCCallFuncN::create(dame, callfuncN_selector(HelloWorld::removeObject)), NULL));		
+		if ( dame.direction == 0) dame.appearance->runAction(CCSequence::create(CCMoveBy::create(2, ccp(-300, 0)), CCCallFuncN::create(this, callfuncN_selector(HelloWorld::removeObject)), NULL));
+		if ( dame.direction == 90) dame.appearance->runAction(CCSequence::create(CCMoveBy::create(2, ccp(0, 300)), CCCallFuncN::create(this, callfuncN_selector(HelloWorld::removeObject)), NULL));
+		if ( dame.direction == 180) dame.appearance->runAction(CCSequence::create(CCMoveBy::create(2, ccp(300, 0)), CCCallFuncN::create(this, callfuncN_selector(HelloWorld::removeObject)), NULL));
+		if ( dame.direction == 270) dame.appearance->runAction(CCSequence::create(CCMoveBy::create(2, ccp(0, -300)), CCCallFuncN::create(this, callfuncN_selector(HelloWorld::removeObject)), NULL));		
 		Player_1.time = 50;
 		}
 	}
+
+	for(int i=0;i<stack.size();i++)
+	{	
+		
+		CCPoint pos = stack[i].appearance->getPosition();
+		CCPoint tileCoord = tileCoordForPosition(pos);
+		if (!check(pos)) 
+			{
+				CCString *type = getType(pos, _background);
+				if (type->compare("Water") == 0 || type->compare("Brick") == 0 || type->compare("Wall") == 0)
+				{
+				if (type->compare("Brick") == 0) 
+					{
+						_background->removeTileAt( tileCoord );
+						stack[i].appearance->runAction( CCCallFuncN::create(this, callfuncN_selector(HelloWorld::removeObject)));
+					}
+				if (type->compare("Wall") == 0) 
+					{
+						stack[i].appearance->runAction( CCCallFuncN::create(this, callfuncN_selector(HelloWorld::removeObject)));
+					}
+				}
+			}	
+		if (!win && stack[i].appearance->boundingBox().intersectsRect(enemyCitadel.appearance->boundingBox()))
+			{
+				enemyCitadel.hp-=10;
+				if (enemyCitadel.hp == 0)
+				{
+					enemyCitadel.appearance->runAction( CCCallFuncN::create(this, callfuncN_selector(HelloWorld::removeObject)));
+					win = true;
+					/*CCSprite *gameover = CCSprite::create("gameover.png");
+					this->addChild(gameover, 1000);
+					gameover->setPosition(ccp(size.width/2, 0));
+					gameover->runAction(CCMoveBy::create(2, ccp(0, 300)));*/
+				}
+				stack[i].appearance->runAction( CCCallFuncN::create(this, callfuncN_selector(HelloWorld::removeObject)));				
+			}
+	}
+}
+
+CCPoint HelloWorld::tileCoordForPosition(CCPoint position)
+{
+    int x = position.x / _tileMap->getTileSize().width;
+    int y = ((_tileMap->getMapSize().height * _tileMap->getTileSize().height) - position.y) / _tileMap->getTileSize().height;
+
+	if (x >= _background->getLayerSize().width) 
+		x = _background->getLayerSize().width - 1;
+
+	if (y >= _background->getLayerSize().height) 
+		y =_background->getLayerSize().height - 1;
+
+	if (x < 0) x=0;
+	if (y < 0) y=0;
+
+    return ccp(x, y);
+}
+
+CCString *HelloWorld::getType(CCPoint pos, CCTMXLayer *layer)
+{
+	CCPoint tileCoord = tileCoordForPosition(pos);
+	int tileGid = _background->tileGIDAt(tileCoord);
+	if (tileGid == 0) return NULL;
+	CCDictionary *properties = _tileMap->propertiesForGID(tileGid);
+	CCString *type = new CCString();
+	*type = *properties->valueForKey("Type");
+	return type;
+}
+
+bool HelloWorld::ok_go(CCString *type)
+{
+	if (type->compare("Water") == 0 || type->compare("Brick") == 0 || type->compare("Wall") == 0) 
+		return false;
+	return true;
+}
+
+bool HelloWorld::check(CCPoint pos)
+{
+	CCString *type = getType(pos, _background);
+	if (type == NULL) return true;
+	return ok_go(type);
 }
 
 void HelloWorld::menuCloseCallback(CCObject* pSender)
@@ -326,5 +357,13 @@ void HelloWorld::menuCloseCallback(CCObject* pSender)
 
 void HelloWorld::removeObject( CCNode* sender ) 
 { 
+	for (int i = 0; i < stack.size(); i++)
+	{
+		if(stack[i].appearance->getTag() == sender->getTag())
+		{
+			stack.erase(stack.begin()+i);
+			break;
+		}
+	}
 	sender->removeFromParentAndCleanup(true);
 }
