@@ -17,9 +17,13 @@ void HelloWorld::checkBullet()
 		m_stack[i].setEffect(enemyCitadel);
 		m_stack[i].setEffect(ourCitadel);
 		m_stack[i].setEffect(Player);
-		m_stack[i].setEffect(AI_1);
-		m_stack[i].setEffect(AI_2);
-		m_stack[i].setEffect(AI_3);
+		for (int j=0; j<MAP.m_numDes; j++)
+			m_stack[i].setEffect(des[j]);
+		for (int j=0; j<MAP.m_numHun; j++)
+			m_stack[i].setEffect(hun[j]);
+		for (int j=0; j<MAP.m_numGru; j++)
+			m_stack[i].setEffect(gru[j]);
+
 		for (int j=i+1; j<m_stack.size(); j++)
 			m_stack[i].setEffect(m_stack[j]);
 	}

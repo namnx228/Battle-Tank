@@ -17,38 +17,51 @@ void AI::setDirection()
 
 }
 
+bool checkBrick(int x,int y)
+{
+	return (( 13<=x )&&( x<=16 )&&( y<=2 ));
+}
+
 bool AI::Saw(const Tank &Player,int & value)
 {
     if (!Player.m_alive) return false;
-	CCPoint pos_player=tileCoordForPosition(Player.m_appearance->getPosition()) , pos_AI=tileCoordForPosition(m_appearance->getPosition());
-    if(!compare(pos_player.x,pos_AI.x))
+	CCPoint pos_player=Player.m_appearance->getPosition() , pos_AI=m_appearance->getPosition();
+	CCPoint pos_Tile_player=tileCoordForPosition(pos_player), pos_Tile_AI=tileCoordForPosition(pos_AI);
+    if(compare(pos_player.x,pos_AI.x)&&compareTile(pos_Tile_player.x,pos_Tile_AI.x))
     {
-       value=(pos_AI.y>=pos_player.y)? 2:0;
-	   return nothing(getCentrePos(pos_AI.x,pos_AI.y),getCentrePos(pos_player.x,pos_player.y),3);
+       value=(pos_AI.y>=pos_player.y)? 0:2;
+	  // return nothing(getCentrePos(pos_AI.x,pos_AI.y),getCentrePos(pos_player.x,pos_player.y),3);
+	   return nothing(pos_AI,pos_player,3);
     }
-    if(!compare(pos_player.y,pos_AI.y))
+    if(compare(pos_player.y,pos_AI.y)&&compareTile(pos_Tile_player.y,pos_Tile_AI.y))
     {  
 	   value=(pos_AI.x>=pos_player.x)? 1:3; 
-	   return nothing(getCentrePos(pos_AI.x,pos_AI.y),getCentrePos(pos_player.x,pos_player.y),3);
+	   //return nothing(getCentrePos(pos_AI.x,pos_AI.y),getCentrePos(pos_player.x,pos_player.y),3);
+	    return nothing(pos_AI,pos_player,3);
 	}
 	return false;
 }
 
 bool AI::Know_Where_Citadel(const Citadel& ourCitadel,int& value)
 {
-	if (!ourCitadel.m_alive) return false; 
      CCPoint pos_Citadel=ourCitadel.m_appearance->getPosition() , pos_AI=m_appearance->getPosition();
      CCSize SIZE=ourCitadel.m_appearance->getContentSize();
      float y1=pos_Citadel.y-SIZE.width/2,y2=pos_Citadel.y+SIZE.width/2 , x1=pos_Citadel.x-SIZE.height/2, x2=pos_Citadel.x+SIZE.height/2;
      if((x1<=pos_AI.x)&&(pos_AI.x<=x2))
      {
             value=0;
-            return nothing(pos_AI,ccp(pos_AI.x,y1),100);
+            return nothing(pos_AI,ccp(pos_AI.x,y2),100);
      }
      if((pos_AI.y<=y2)&&(pos_AI.y>=y1))
      { 
-			if (pos_AI.x<x1) value=3; else value=1;
-            return nothing(pos_AI,ccp(x1,pos_AI.y),100);
+			
+			if (pos_AI.x<x1) 
+			{
+					value=3; return nothing(pos_AI,ccp(x1,pos_AI.y),100);
+			}
+			else {
+					value=1; return nothing(pos_AI,ccp(x2,pos_AI.y),100);
+				 }
      }
 	 return false;
 }
@@ -58,9 +71,14 @@ bool AI::nothing( CCPoint p1, CCPoint p2,int n_brick)
         p1=CCPoint(tileCoordForPosition(p1));
         p2=CCPoint(tileCoordForPosition(p2));
 		if(p1.equals(p2)) return false;
-        CCPoint DIR=ccpNormalize(ccpSub(p2,p1));
+		CCPoint sub=ccpSub(p2,p1);
+		if (abs(sub.x+sub.y)>12) return false;
+		//CCLog("Begin");
+        CCPoint DIR=ccpNormalize(sub);
+		//CCLog("end");
         for(int x=p1.x+DIR.x,y=p1.y+DIR.y ;(x!=p2.x)||(y!=p2.y) ; x+=DIR.x,y+=DIR.y)
         {
+			//CCLog("end");
             CCPoint pos=getCentrePos(x,y);
             CCString *type=getType(pos);
 			if(type==NULL) continue;
@@ -71,6 +89,7 @@ bool AI::nothing( CCPoint p1, CCPoint p2,int n_brick)
                 if(n_brick<0) return false;
             }
         }
+		//CCLog("end");
 	return true;
 }
 
@@ -124,8 +143,6 @@ void AI::findWay(int x,int y)
 {
     memset(d,0,sizeof(d));
 	dfs(x,y);
-	CCLog("%s",Way.c_str());
-
 }
 
 void AI::dfs(int x,int y)
@@ -133,6 +150,8 @@ void AI::dfs(int x,int y)
 	d[x][y]=1;
 	CCString *type;
 	CCPoint pos=getCentrePos(x,y);
+	int vitri[4];
+	vitri[0]=0; vitri[3]=2;
 	if (pos.x>SCENE->ourCitadel.m_appearance->getPositionX())
 	{ vitri[1]=1; vitri[2]=3;	}
 	else { vitri[1]=3;vitri[2]=1;}
@@ -145,7 +164,7 @@ void AI::dfs(int x,int y)
 			type=getType(getCentrePos(newx,newy));
 			if((type!=NULL)&&(type->compare("Brick")==0)) 
             {
-                if(bricklimit==3) continue;
+                if((bricklimit==3)||(checkBrick(newx,newy))) continue;
                 Way=Way+'F';
                 bricklimit++;
             }else bricklimit=0;
@@ -168,7 +187,8 @@ void Gruarder::dfs_Gru(int x,int y)
 	d[x][y]=1;
 	CCString *type;
 	CCSize SIZE=SCENE->_tileMap->getMapSize();
-	
+	int vitri[4];
+	vitri[0]=0; vitri[3]=2;
 	CCPoint pos=getCentrePos(x,y);
 	if (pos.x>SCENE->ourCitadel.m_appearance->getPositionX())
 	{ vitri[1]=1; vitri[2]=3;	}
@@ -182,7 +202,7 @@ void Gruarder::dfs_Gru(int x,int y)
 			type=getType(getCentrePos(newx,newy));
 			if((type!=NULL)&&(type->compare("Brick")==0)) 
             {
-                if(bricklimit==3) continue;
+                if((bricklimit==3)||(checkBrick(newx,newy))) continue;
                 Way=Way+'F';
                 bricklimit++;
             }else bricklimit=0;
@@ -202,6 +222,8 @@ bool Gruarder::scanEnemy(const Tank& Player)
 void Destroyer::AI_Des_Action(const Tank& Player,const Citadel& ourCitadel)
 {
 	CCPoint Pos=m_appearance->getPosition();
+	CCPoint pos2=tileCoordForPosition(Pos);
+	if(checkBrick(int(pos2.x),int(pos2.y))) CCLog("Loi o day:%d",Waycount);
 	int pos;
     // tan cong
 	if((Know_Where_Citadel(ourCitadel,pos))||(Saw(Player,pos)))
@@ -216,29 +238,29 @@ void Destroyer::AI_Des_Action(const Tank& Player,const Citadel& ourCitadel)
 	if(Keep_Going>0) 
 		{
 				
-			Keep_Going--;
+			Keep_Going-=m_speed+m_item.m_speed;
 			pos=int(Way[Waycount])-48;
-			m_appearance->setRotation(toAngle(dir[pos]));
-			m_appearance->setPosition(ccpAdd(Pos,dir[pos]));		
+			m_direction=dir[pos];
+			//m_appearance->setRotation(toAngle(dir[pos]));
+			//m_appearance->setPosition(ccpAdd(Pos,dir[pos]));		
+			move();
 	    }
 	else 
 		{
 			Waycount++;
 			if(Way[Waycount]=='F') 
 				{
-					if (Waycount) 
-					{
-						pos=int(Way[Waycount-1])-48;
-						m_direction=dir[pos];
-					}
+					pos = int(Way[Waycount+1])-48;
+					m_direction=dir[pos];
 					fire(true);
 					return;
 				}
 			pos=int(Way[Waycount])-48;
-			m_appearance->setRotation(toAngle(dir[pos]));
+			//m_appearance->setRotation(toAngle(dir[pos]));
 			m_direction=dir[pos];
-			m_appearance->setPosition(ccpAdd(Pos,dir[pos]));
-			Keep_Going=SCENE->_tileMap->getTileSize().width-1;
+			//m_appearance->setPosition(ccpAdd(Pos,dir[pos]));
+			move();
+			Keep_Going=SCENE->_tileMap->getTileSize().width-m_speed-m_item.m_speed;
 		}
 	fire(OK_Fire);
 }
@@ -328,7 +350,7 @@ bool Gruarder::goHome()
 			}
 
 		fire(OK_Fire);
-		if (count > 0 && !m_time)
+		if (count > 1 && !m_time)
 		{
 			setDirection();
 			move();

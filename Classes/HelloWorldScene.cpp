@@ -10,13 +10,12 @@ using namespace cocos2d;
 int bulletcount = 0, itemTime = 0;
 int numberOfItem = 3;
 float tileSize = 32, tankSize = 26;
-
+Scene MAP;
 int d[40][30];//Warning
 int dx[4]={0,1,-1,0}, dy[4]={1,0,0,-1};
 vector<Bullet> m_stack;
 HelloWorld *SCENE;
 CCPoint DIR[4],dir[4],trace[40][40],q[1000];
-int vitri[4];
 
 
 
@@ -66,12 +65,21 @@ void HelloWorld::update(float pDt)
 			}
 
 		}
+		//item[2].m_appearance->setPosition(ccp((0+0.5)*tileSize, (19+0.5)*tileSize));
+		//item[2].m_appearance->setVisible(true);
+		//				item[2].m_ok = true;
 		itemTime = 3600;
 	}
 
 	if (itemTime) itemTime -= 1;
 
-	//CCLog("%d",tankSize);
+	Player.Revive(ccp(7,19),0,"tank1.png",1,1,10);
+	For(i,0,MAP.m_numDes-1)
+		des[i].AI_Des_Revive(des[i].start,0,"tank2.png",1,1,3);
+	For(i,0,MAP.m_numHun-1)
+		hun[i].AI_Hun_Revive(hun[i].start,0,"tank2.png",1,1,2);
+	For(i,0,MAP.m_numGru-1)
+		gru[i].AI_Gru_Revive(gru[i].start,0,"tank2.png",1,1,3);
 	if (Player.m_alive)
 	{
 		if ( m_IsTouchMoved)
@@ -85,12 +93,12 @@ void HelloWorld::update(float pDt)
 		}
 		Player.fire(IsHolding);
 	}
-    if (ourCitadel.m_alive)
-    {
-       		if (AI_1.m_alive) AI_1.AI_Des_Action(Player,ourCitadel);
-		if(AI_2.m_alive) AI_2.AI_Hun_Action(Player,ourCitadel);
-		if(AI_3.m_alive) AI_3.AI_Gru_Action(Player,ourCitadel);
-    }
+		For(i,0,MAP.m_numDes-1) 
+       		if(des[i].m_alive && ourCitadel.m_alive) des[i].AI_Des_Action(Player,ourCitadel);
+		For(i,0,MAP.m_numHun-1)
+			if(hun[i].m_alive && ourCitadel.m_alive) hun[i].AI_Hun_Action(Player,ourCitadel);
+		For(i,0,MAP.m_numGru-1)
+			if(gru[i].m_alive && ourCitadel.m_alive) gru[i].AI_Gru_Action(Player,ourCitadel);
      
 	checkBullet();
 }
@@ -98,7 +106,6 @@ void HelloWorld::update(float pDt)
 void constant_init()
 {
 	DIR[0]=ccp(0,1); DIR[1]=ccp(-1,0); DIR[2]=ccp(0,-1); DIR[3]=ccp(1,0);
-	vitri[0]=0; vitri[1]=1; vitri[2]=3; vitri[3]=2;
 	dir[0]=ccp(0,-1); dir[1]=ccp(-1,0); dir[2]=ccp(0,1); dir[3]=ccp(1,0);
 }
 

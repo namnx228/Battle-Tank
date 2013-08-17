@@ -7,6 +7,17 @@
 using namespace cocos2d;
 using namespace std;
 
+class Scene
+{
+public:
+	char* m_Tilemap;
+	int m_numDes,m_numHun,m_numGru;
+	CCPoint m_posDes[3];
+	CCPoint m_posHun[3];
+	CCPoint m_posGru[3];
+	int m_tankDame,m_tankSpeed,m_tankHp;
+};
+
 class Item
 {
 public:
@@ -34,12 +45,13 @@ class Tank
 {
 public:
 	CCSprite *m_appearance;
-	float m_time, m_dame, m_speed, m_hp;
+	float m_time, m_dame, m_speed, m_hp,m_timeRevive;
 	bool m_alive,OK_Fire;
 	CCPoint m_direction, m_checkPoint1, m_checkPoint2, m_checkPoint3, m_checkPoint4,start;
 	Item m_item;
 
 	void initTank(CCPoint,float,const char* ,float,float,float);
+	void Revive(CCPoint,float,const char* ,float,float,float);
 	void move();
 	void fire(bool);
 };
@@ -61,7 +73,6 @@ public:
 	friend bool OK_GO(int,int);
 	void dfs(int,int);
     friend CCPoint getCentrePos(int,int);
-	friend void swap(CCPoint&,CCPoint&);
 	void bfs(CCPoint);
 	void setDirection();
 	//CCPoint trace[32][22];
@@ -82,6 +93,7 @@ class Destroyer:public AI
 {
 public:
     void AI_Des_Init(CCPoint,float,string,float,float,float);
+	void AI_Des_Revive(CCPoint,float,string,float,float,float);
     void AI_Des_Action(const Tank&,const Citadel&);
 };
 
@@ -89,6 +101,7 @@ class Hunter:public Destroyer
 {
 public:
     void AI_Hun_Init(CCPoint,float,string,float,float,float);
+	void AI_Hun_Revive(CCPoint,float,string,float,float,float);
     void AI_Hun_Action(const Tank&,const Citadel&);
     int m_timedelay,m_timeFire;
 };
@@ -98,6 +111,7 @@ class Gruarder:public Hunter
 public:
 	bool loss;
 	void AI_Gru_Init(CCPoint,float,string,float,float,float);
+	void AI_Gru_Revive(CCPoint,float,string,float,float,float);
 	void AI_Gru_Action(const Tank&, const Citadel&);
 	bool scanEnemy(const Tank&),goHome();
 	void findWay_Gru(int,int);
@@ -111,9 +125,10 @@ class HelloWorld : public cocos2d::CCLayer
 	CCTMXTiledMap *_tileMap;
 	CCTMXLayer *_background, *_tree;
 	Tank Player;
-	Destroyer AI_1;
-	Hunter AI_2;
-	Gruarder AI_3;
+	int numDes,numHun,numGru;
+	Destroyer des[3];
+	Hunter hun[3];
+	Gruarder gru[3];
 	Citadel ourCitadel, enemyCitadel;
 	Item item[3];
 
@@ -164,4 +179,6 @@ float toAngle(CCPoint direction);
 CCString *getType(CCPoint pos);
 CCPoint tileCoordForPosition(CCPoint position);
 void constant_init();
+bool compare(float,float);
+bool compareTile(float,float);
 #endif // __HELLOWORLD_SCENE_H__

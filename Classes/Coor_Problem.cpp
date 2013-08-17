@@ -65,10 +65,15 @@ bool OK_GO(int x,int y)
 	return false;
 }
 
-int compare(float x,float y)
+bool compare(float x,float y)
 {
-    if(int(x)-int(y)==0) return 0;
-    if(int(x)-int(y)>0) return 1;
-    return -1;
+    if(abs(int(x)-int(y))<=16) return true;
+    return false;
+}
+
+bool compareTile(float x,float y)
+{
+	if(abs(int(x)-int(y))==0) return true;
+    return false;
 }
 

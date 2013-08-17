@@ -17,7 +17,7 @@ void Tank::fire(bool ok)
 		dame.m_appearance->setPosition(pos);
 		dame.m_appearance->setTag(bulletcount++);
 		m_stack.push_back(dame);
-		dame.m_appearance->runAction(CCSequence::create(CCMoveBy::create(4, ccp(500*m_direction.x, 500*m_direction.y)), CCCallFuncN::create(SCENE, callfuncN_selector(HelloWorld::removeObject)), NULL));
+		dame.m_appearance->runAction(CCSequence::create(CCMoveBy::create(2, ccp(390*m_direction.x, 390*m_direction.y)), CCCallFuncN::create(SCENE, callfuncN_selector(HelloWorld::removeObject)), NULL));
 		m_time = 50;	
 	}
 	if (m_item.m_time == 0) m_item.initItem(0, 0, 0, 0);
@@ -52,10 +52,8 @@ void Tank::move()
 	if (SCENE->ourCitadel.m_alive && m_appearance->boundingBox().intersectsRect(SCENE->ourCitadel.m_appearance->boundingBox())) return;
 	if (SCENE->enemyCitadel.m_alive && m_appearance->boundingBox().intersectsRect(SCENE->enemyCitadel.m_appearance->boundingBox())) return;
 	if (check(m_checkPoint1) && check(m_checkPoint2)  && check(m_checkPoint3) && check(m_checkPoint4))
-	{
-		//CCLog("%f %f",nextPos.x,nextPos.y);
 		m_appearance->setPosition(nextPos);
-	}
+
 }
 
 CCPoint HelloWorld::normalize(CCPoint m_DirectionVector, CCPoint bigPos, CCPoint smallPos)
