@@ -1,8 +1,2 @@
-<<<<<<< HEAD
-vss2013-04-battle-tank
-=======
-vss2013-04_battle-tank
->>>>>>> c0980e5720c5dc29c9cdbd0c9747d4aa9265acda
-======================
-
-VSS 2013 - Team 4 - Battle Tank (Xuân Nam - Vuong Long - Minh Le)
+# This is an improved version of game [Battle City][Battle City]. In this improvement, players can activate the automatic mode that allow their tank controls itself and automatically runs and shoot the enemies. 
+[Battle City]: https://www.wikiwand.com/en/Battle_City_(video_game)
